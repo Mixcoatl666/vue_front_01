@@ -1,1 +1,234 @@
 // app global css
+
+body {
+  background: #f7f8fc;
+}
+
+.documentation-page {
+  min-height: 100%;
+  color: #20253a;
+}
+
+.doc-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 400px;
+  overflow: hidden;
+  padding: 76px max(7vw, 28px);
+  color: white;
+  background: linear-gradient(120deg, #172051 0%, #3544a4 58%, #6957c8 100%);
+}
+
+.doc-content {
+  position: relative;
+  z-index: 1;
+  max-width: 650px;
+}
+
+.doc-badge {
+  padding: 7px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #e8e4ff;
+  background: rgb(255 255 255 / 14%);
+}
+
+.doc-hero h1 {
+  max-width: 650px;
+  margin: 19px 0 16px;
+  font-size: clamp(2.45rem, 5vw, 4.35rem);
+  font-weight: 750;
+  line-height: 1.06;
+  letter-spacing: -2px;
+}
+
+.doc-hero h1 span {
+  color: #b9efff;
+}
+
+.doc-hero p {
+  max-width: 590px;
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.7;
+  color: #e0e5ff;
+}
+
+.hero-button {
+  margin-top: 28px;
+  padding: 4px 8px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.hero-orbit {
+  position: absolute;
+  right: 10%;
+  width: 265px;
+  height: 265px;
+}
+
+.orbit-ring {
+  position: absolute;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 50%;
+}
+
+.orbit-ring--large {
+  inset: 0;
+}
+
+.orbit-ring--small {
+  inset: 42px;
+  border-width: 16px;
+  border-color: rgb(186 239 255 / 24%);
+}
+
+.orbit-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding: 20px;
+  font-size: 58px;
+  color: #fff;
+  background: #6454c7;
+  border: 8px solid #a6edff;
+  border-radius: 50%;
+  box-shadow: 0 15px 35px rgb(14 19 69 / 35%);
+  transform: translate(-50%, -50%);
+}
+
+.benefits-section {
+  max-width: 1160px;
+  padding: 70px 28px 82px;
+  margin: auto;
+}
+
+.section-heading {
+  max-width: 590px;
+  margin-bottom: 30px;
+}
+
+.section-heading > span {
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 1.4px;
+  color: #6554c5;
+}
+
+.section-heading h2 {
+  margin: 10px 0 0;
+  font-size: clamp(1.8rem, 3.4vw, 2.65rem);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.8px;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.benefit-card {
+  height: 100%;
+  background: white;
+  border: 1px solid #e8eaf3;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgb(33 40 81 / 5%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.benefit-card:hover {
+  box-shadow: 0 18px 35px rgb(33 40 81 / 11%);
+  transform: translateY(-4px);
+}
+
+.benefit-card .q-card__section {
+  padding: 28px;
+}
+
+.benefit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+}
+
+.benefit-icon--purple {
+  color: #694dcc;
+  background: #f0ebff;
+}
+.benefit-icon--blue {
+  color: #2779c9;
+  background: #e8f4ff;
+}
+.benefit-icon--orange {
+  color: #e07623;
+  background: #fff0e3;
+}
+
+.benefit-card h3 {
+  margin: 20px 0 9px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.benefit-card p {
+  margin: 0;
+  line-height: 1.6;
+  color: #697087;
+}
+
+.doc-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: #dce1fa;
+  background: #202a63;
+}
+
+.doc-footer p {
+  margin: 0;
+}
+
+@media (max-width: 800px) {
+  .doc-hero {
+    min-height: 480px;
+  }
+  .hero-orbit {
+    right: -60px;
+    bottom: -75px;
+    opacity: 0.42;
+  }
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .doc-hero {
+    padding: 58px 25px 155px;
+  }
+  .doc-hero h1 {
+    letter-spacing: -1.3px;
+  }
+  .doc-hero p {
+    font-size: 1rem;
+  }
+  .benefits-section {
+    padding: 52px 20px 60px;
+  }
+  .doc-footer {
+    align-items: flex-start;
+    padding: 20px;
+  }
+}
