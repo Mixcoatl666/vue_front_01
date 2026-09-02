@@ -56,6 +56,12 @@ const navigationItems = [
     icon: 'book',
     to: '/documentacion',
   },
+  {
+    label: 'CRUD',
+    caption: 'CRUD Clientes',
+    icon: 'person',
+    to: '/clientes',
+  }
 ]
 
 const leftDrawerOpen = ref(false)
