@@ -82,8 +82,8 @@ function readNotes() {
 
 function saveWork() {
   const plainText = editor.value
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
+    .replace(/<[^<>]*>/g, '')
+    .replaceAll('&nbsp;', ' ')
     .trim()
 
   if (!plainText) {

@@ -1,6 +1,9 @@
 .DS_Store
 .thumbs.db
 node_modules
+.scannerwork
+.sonarlint
+sonar-project.properties
 
 # .env files
 .env*
