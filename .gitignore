@@ -11,6 +11,7 @@ sonar-project.properties
 # Quasar core related directories
 .quasar
 /dist
+/coverage
 /quasar.config.*.temporary.compiled*
 
 # Cordova related directories and files
@@ -32,3 +33,4 @@ yarn-error.log*
 .vscode
 pnpm-lock.yaml
 pnpm-workspace.yaml
+tests
