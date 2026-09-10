@@ -1,39 +1,35 @@
 <template>
   <q-page class="notes-page">
     <div class="notes-container q-pa-md">
-      <div class="text-h6 q-mb-sm">Escritor de Notas</div>
-      <q-editor v-model="editor" placeholder="Comienza a escribir o ten una nueva idea..." :definitions="{
-        save: {
-          tip: 'Save your work',
-          icon: 'save',
-          label: 'Save',
-          handler: saveWork,
-        },
-        upload: {
-          tip: 'Upload to cloud',
-          icon: 'cloud_upload',
-          label: 'Upload',
-          handler: uploadIt,
-        },
-      }" :toolbar="[
+      <div class="row items-center justify-between q-mb-sm">
+        <div class="text-h6">{{ notaEditando ? 'Editar nota' : 'Escritor de Notas' }}</div>
+        <q-btn v-if="notaEditando" flat label="Cancelar edición" icon="close" @click="cancelarEdicion" />
+      </div>
+      
+      <q-editor v-model="editor" placeholder="Comienza a escribir o ten una nueva idea..."
+        :definitions="{ save: { icon: 'save', label: 'Guardar', handler: saveWork } }" :toolbar="[
           ['justify', 'center'],
           ['bold', 'italic', 'strike', 'underline'],
           ['quote', 'unordered', 'ordered'],
           ['undo', 'redo'],
-          ['upload', 'save'],
+          ['save'],
         ]" />
 
-      <section v-if="notes.length" class="q-mt-md">
-        <div class="text-h6 q-mb-sm">Notas guardadas</div>
+      <section class="q-mt-md">
+        <div class="row items-center justify-between q-mb-sm">
+          <div class="text-h6">Notas guardadas</div>
+          <q-btn flat icon="refresh" label="Actualizar" :loading="loading" @click="cargarNotas" />
+        </div>
 
-        <div class="notes-grid">
-          <q-card v-for="note in notes" :key="note.id" bordered flat class="note-card">
+        <q-inner-loading :showing="loading" />
+        <div v-if="notes.length" class="notes-grid">
+          <q-card v-for="note in notes" :key="note.idnota" bordered flat class="note-card">
             <q-card-section class="q-pb-sm">
               <div class="row items-center no-wrap">
                 <div class="note-icon">
                   <q-icon name="sticky_note_2" size="24px" />
                 </div>
-                <div class="text-subtitle1 text-weight-medium q-ml-sm">{{ note.title }}</div>
+                <div class="text-subtitle1 text-weight-medium q-ml-sm">{{ note.titulo }}</div>
               </div>
             </q-card-section>
 
@@ -41,16 +37,23 @@
 
             <q-scroll-area class="note-content">
               <q-card-section>
-                <div v-html="note.content" />
+                <div v-html="note.descripcion" />
               </q-card-section>
             </q-scroll-area>
 
             <q-card-actions align="right" class="q-px-md q-py-sm">
-              <q-btn flat round color="negative" icon="delete" aria-label="Eliminar nota" @click="deleteNote(note.id)">
+              <q-btn flat round color="primary" icon="edit" aria-label="Editar nota" @click="editarNota(note)">
+                <q-tooltip>Editar nota</q-tooltip>
+              </q-btn>
+              <q-btn flat round color="negative" icon="delete" aria-label="Eliminar nota"
+                @click="deleteNote(note.idnota)">
                 <q-tooltip>Eliminar nota</q-tooltip>
               </q-btn>
             </q-card-actions>
           </q-card>
+        </div>
+        <div v-else-if="!loading" class="text-grey-7 q-pa-lg text-center">
+          No hay notas guardadas.
         </div>
       </section>
     </div>
@@ -60,27 +63,35 @@
 <script setup>
 import { useQuasar } from 'quasar'
 import { onMounted, ref } from 'vue'
-
-const STORAGE_KEY = 'notas'
+import {
+  actualizarNota,
+  crearNota,
+  eliminarNota,
+  listarNotas,
+} from '@/services/notas.service'
 
 const $q = useQuasar()
+const titulo = ref('')
 const editor = ref('')
 const notes = ref([])
+const loading = ref(false)
+const guardando = ref(false)
+const notaEditando = ref(null)
 
-onMounted(() => {
-  notes.value = readNotes()
-})
+onMounted(cargarNotas)
 
-function readNotes() {
+async function cargarNotas() {
+  loading.value = true
   try {
-    const savedNotes = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-    return Array.isArray(savedNotes) ? savedNotes : []
-  } catch {
-    return []
+    notes.value = await listarNotas()
+  } catch (error) {
+    notificarError(error.message)
+  } finally {
+    loading.value = false
   }
 }
 
-function saveWork() {
+async function saveWork() {
   const plainText = editor.value
     .replace(/<[^<>]*>/g, '')
     .replaceAll('&nbsp;', ' ')
@@ -96,43 +107,61 @@ function saveWork() {
     return
   }
 
-  const note = {
-    id: Date.now(),
-    title: `Nota #${notes.value.length + 1}`,
-    content: editor.value,
+  guardando.value = true
+  const estabaEditando = Boolean(notaEditando.value)
+  try {
+    const payload = {
+      titulo: titulo.value || `Nota #${notes.value.length + 1}`,
+      descripcion: editor.value,
+    }
+    const nota = estabaEditando
+      ? await actualizarNota(notaEditando.value.idnota, payload)
+      : await crearNota(payload)
+
+    if (estabaEditando) {
+      const indice = notes.value.findIndex((item) => item.idnota === nota.idnota)
+      if (indice !== -1) notes.value[indice] = nota
+    } else {
+      notes.value.unshift(nota)
+    }
+
+    cancelarEdicion()
+    $q.notify({
+      message: estabaEditando ? 'Nota actualizada.' : 'Nota guardada con éxito.',
+      color: 'positive',
+      icon: 'cloud_done',
+    })
+  } catch (error) {
+    notificarError(error.message)
+  } finally {
+    guardando.value = false
   }
+}
 
-  notes.value.push(note)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes.value))
+async function deleteNote(noteId) {
+  try {
+    await eliminarNota(noteId)
+    notes.value = notes.value.filter((note) => note.idnota !== noteId)
+    $q.notify({ message: 'Nota eliminada.', color: 'positive', icon: 'delete' })
+  } catch (error) {
+    notificarError(error.message)
+  }
+}
+
+function editarNota(note) {
+  notaEditando.value = note
+  titulo.value = note.titulo
+  editor.value = note.descripcion
+}
+
+function cancelarEdicion() {
+  notaEditando.value = null
+  titulo.value = ''
   editor.value = ''
-
-  $q.notify({
-    message: 'Nota guardada con éxito.',
-    color: 'green-4',
-    textColor: 'white',
-    icon: 'cloud_done',
-  })
 }
 
-function deleteNote(noteId) {
-  notes.value = notes.value.filter((note) => note.id !== noteId)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes.value))
-
-  $q.notify({
-    message: 'Nota eliminada.',
-    color: 'grey-8',
-    textColor: 'white',
-    icon: 'delete',
-  })
-}
-
-function uploadIt() {
-  $q.notify({
-    message: 'No hay conexión al servidor',
-    color: 'red-5',
-    textColor: 'white',
-    icon: 'warning',
-  })
+function notificarError(message) {
+  $q.notify({ message, color: 'negative', icon: 'error' })
 }
 </script>
 

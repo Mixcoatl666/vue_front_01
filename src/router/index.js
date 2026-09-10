@@ -18,11 +18,14 @@ import routes from './routes.js'
  */
 
 export default defineRouter((/* { store, ssrContext } */) => {
-  const createHistory = import.meta.env.QUASAR_SERVER
-    ? createMemoryHistory
-    : import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history'
-      ? createWebHistory
-      : createWebHashHistory
+  let createHistory
+  if (import.meta.env.QUASAR_SERVER) {
+    createHistory = createMemoryHistory
+  } else if (import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history') {
+    createHistory = createWebHistory
+  } else {
+    createHistory = createWebHashHistory
+  }
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
